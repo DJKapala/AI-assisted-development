@@ -2,146 +2,286 @@
 ![CI](https://github.com/DJKapala/AI-assisted-development/actions/workflows/ci.yml/badge.svg)
 ![coverage](https://img.shields.io/badge/coverage-unknown-lightgrey)
 
-This repository contains a small MCP-powered test agent (`server.py`) and
-pure-Python helpers extracted into `mcp_utils.py`. The project now includes
-unit tests and coverage support so you can iterate quickly on logic without
-installing native dependencies.
+SE333 Final Project — Autonomous Test-Improvement Agent
+AI-Assisted Software Engineering with Model Context Protocol (MCP)
 
-This README explains how to set up a local development environment on
-Windows (PowerShell), run the test suite, produce coverage reports, and
-prepare a branch/pr with your changes.
+This project implements an intelligent autonomous agent that automatically:
 
-## Contents
+Generates JUnit test cases
 
-- `server.py` — MCP server wiring and MCP tool wrappers. Import-safe when
-	`fastmcp` is not installed so tests can import functions without native
-	extensions.
-- `mcp_utils.py` — pure-Python helper functions (testable): `add_numbers`,
-	`run_cmd`, `coverage_analyzer`, `test_generator`.
-- `tests/` — pytest unit tests added for helpers and server-level wrappers.
+Runs Maven test suites
 
-## Prerequisites
+Analyzes JaCoCo coverage reports
 
-- Python 3.13+ is recommended (project pyproject.toml requires >=3.13).
-- Git if you plan to create branches and push to a remote.
+Identifies uncovered code
 
-This guide uses PowerShell commands (your default shell). Adjust commands if
-you prefer a different shell.
+Improves test coverage over multiple iterations
 
-## Quick start (recommended)
+Detects bugs via failing tests
 
-1. Create a project-local virtual environment and activate it:
+Automatically fixes bugs in Java source code
 
-```powershell
+Commits improvements to GitHub using MCP Git tools
+
+The agent uses the Model Context Protocol (MCP) and VS Code's built-in AI integration to orchestrate a full feedback-driven development loop.
+
+Project Structure
+mcp-project/
+│
+├── server.py                     # MCP server with Git, Maven, JaCoCo, test generation tools
+├── src/
+│   ├── main/java/                # Java source code (your codebase)
+│   └── test/java/                # Auto-generated JUnit tests
+│
+├── target/                       # Maven build output (ignored by Git)
+│
+├── .github/
+│   └── prompts/
+│        └── tester.prompt.md     # Autonomous agent behavior specification
+│
+├── README.md
+└── requirements.txt (optional)
+
+1. Environment Setup
+Install Python 3.10+ and Java 17+
+
+Ensure you have:
+
+Python: python --version
+
+Java: java -version
+
+Maven: mvn -version
+
+Create and activate virtual environment
 python -m venv .venv
-.\.venv\Scripts\Activate
-```
+source .venv/bin/activate      # macOS/Linux
+.venv\Scripts\activate         # Windows
 
-2. Upgrade pip and install test/runtime dependencies required for local
-	 development. The project ships a minimal set of tests that only need
-	 `pytest` and `pytest-cov` to run:
+Install FastMCP
+pip install fastmcp
 
-```powershell
-.\.venv\Scripts\python -m pip install --upgrade pip
-.\.venv\Scripts\python -m pip install pytest pytest-cov
-```
 
-3. Run the test suite (fast):
+Verify installation:
 
-```powershell
-.\.venv\Scripts\python -m pytest -q
-```
+pip show fastmcp
 
-4. Run tests with coverage and produce `coverage.xml`:
+2. Starting the MCP Server
 
-```powershell
-.\.venv\Scripts\python -m pytest --cov=mcp_utils --cov=server --cov-report=term --cov-report=xml:coverage.xml
-```
+Run:
 
-## Running the MCP server
+python server.py
 
-The module `server.py` contains MCP wiring that relies on the `fastmcp`
-package and its compiled dependencies (for example, `pydantic_core`). The
-repository has been arranged so tests and pure-Python helpers work without
-installing `fastmcp`.
 
-To run the server in a real environment you will need to install `fastmcp`
-and any platform-specific native wheels. If you have the correct
-environment, start the server with:
+You should see:
 
-```powershell
-.\.venv\Scripts\python server.py
-```
+MCP server running (transport=sse)
 
-Note: if `fastmcp` is not installed, running `server.py` as above will raise
-an AttributeError since `mcp` will be `None`. For local unit testing and
-development you generally don't need to start the server — the tests exercise
-the pure-Python logic and the MCP decorator is a no-op when `fastmcp` is
-missing.
 
-## Development notes
+Leave this window open while using VS Code.
 
-- Project helpers were moved into `mcp_utils.py` so they are easy to test
-	and import without optional native dependencies.
-- Tests are located in the `tests/` directory and use `pytest`.
-- A virtualenv named `.venv` is used in examples to keep dependencies local.
+3. Connect the MCP Server in VS Code
 
-## Committing and creating a PR (local flow)
+Open VS Code
 
-1. Create and switch to a new branch:
+Press: CTRL+SHIFT+P
 
-```powershell
-git checkout -b add-tests-and-coverage
-```
+Search: MCP: Add Server
 
-2. Stage only the source and test files you changed (avoid adding `.venv`):
+Enter your server URL (usually):
 
-```powershell
-git add server.py mcp_utils.py tests/
-```
+http://localhost:8000
 
-3. Commit and push the branch to your remote (replace `<remote-url>` with
-	 your repository URL if `origin` is not configured):
 
-```powershell
-git commit -m "tests: extract helpers to mcp_utils and add unit tests + coverage"
-git remote add origin <remote-url>        # only if you don't have origin
-git push -u origin add-tests-and-coverage
-```
+Name it:
+SE333 Test Agent Server
 
-4. (Optional) Create a GitHub PR using the `gh` CLI (if installed):
+Confirm that the new server appears in VS Code's Chat sidebar.
 
-```powershell
-gh pr create --fill --title "Add tests and coverage" --body "Add unit tests and extract pure-Python helpers to improve testability and coverage."
-```
+4. Agent Prompt Setup
 
-If `gh` is not installed you can open the PR from the repository web UI.
+Create:
 
-## Troubleshooting
+.github/prompts/tester.prompt.md
 
-- "No module named pytest": install the test deps in the virtualenv as shown
-	in Quick start.
-- Import errors referencing `pydantic_core` or `fastmcp`: those indicate
-	native dependencies are missing; you can still run the unit tests because
-	`server.py` is import-safe — tests exercise the pure-Python helpers.
 
-## CI suggestions
+This file defines:
 
-- Add a GitHub Actions workflow that:
-	- sets up Python 3.14 (or your target),
-	- creates and activates a venv,
-	- installs test dependencies (`pytest`, `pytest-cov`),
-	- runs tests and uploads `coverage.xml` as an artifact or publishes
-		coverage to a service.
+How the agent generates tests
 
-If you'd like, I can add a ready-to-use `.github/workflows/ci.yml` that runs
-tests and coverage on push/PR.
+How it analyzes coverage
 
-## Contact / contribution
+How it fixes bugs
 
-If you want me to push the local branch and open a PR from this environment
-I can do that — but the current repository does not have a configured `origin`
-remote here, so I'll need a remote URL or you can push the branch yourself.
+When it commits changes
 
-Happy to add the CI workflow or help with next tests — tell me which task to
-do next.
+When it pushes to GitHub
+
+Example contents:
+
+---
+mode: "agent"
+tools: ["git_status", "git_add_all", "git_commit", "git_push",
+        "test_generation", "test_execution", "coverage_analyzer"]
+description: "Autonomous testing & bug-fixing agent"
+model: "gpt-5-mini"
+---
+
+# Autonomous Test Improvement Agent
+
+You generate, run, and improve tests automatically…
+
+
+(Replace with your full version.)
+
+5. Running Tests Manually (Optional)
+
+To manually run the Java test suite:
+
+mvn -q test
+
+
+This generates:
+
+JUnit test results → target/surefire-reports/
+
+JaCoCo coverage reports → target/site/jacoco/jacoco.xml
+
+6. The Automated Test-Improvement Cycle
+
+The agent performs:
+
+Iteration Loop
+
+test_execution() → run Maven tests
+
+coverage_analyzer() → parse JaCoCo
+
+Identify uncovered classes/methods
+
+test_generator() → generate new tests
+
+Re-run tests
+
+If failures → detect bug → patch Java source
+
+git_add_all()
+
+git_commit()
+
+git_push()
+
+Stop when coverage plateaus or 100% reached
+
+Commit Format Example:
+[test-agent] Added new tests for MathUtils.divide
+Coverage: 72.4%
+Tests Added: 4
+Uncovered remaining: 6
+Bug Fixes: 1
+
+7. Bug Detection & Fixing
+
+The provided SE333 codebase contains at least one hidden bug.
+
+Your agent should:
+
+Run tests
+
+Observe a failure (from Jacoco or Surefire output)
+
+Inspect the Java source under src/main/java/
+
+Propose + apply a patch
+
+Re-run tests
+
+Commit and push the fix
+
+Example failure:
+
+ArithmeticException: / by zero
+at com.project.utils.MathUtil.divide(MathUtil.java:17)
+
+
+Example fix:
+
+if (b == 0) {
+    throw new IllegalArgumentException("Divider cannot be zero.");
+}
+
+
+The agent should generate such patches autonomously.
+
+8. Reporting & Quality Metrics
+
+The agent tracks:
+
+Test coverage percentage
+
+Number of tests generated
+
+Assertions per test
+
+Detected bugs
+
+Fixed bugs
+
+Lines changed
+
+Uncovered methods remaining
+
+These metrics are automatically inserted into commit messages.
+
+9. GitHub Integration
+Required:
+
+Enable GitHub CLI (gh) authentication:
+
+gh auth login
+
+
+Your MCP server supports:
+
+git_status()
+
+git_add_all()
+
+git_commit(message, coverage)
+
+git_push()
+
+git_pull_request()
+
+Auto-protection
+
+Pushing to main or master is blocked
+
+Agent must use feature branches
+
+10. Running the Autonomous Agent
+
+Open VS Code Chat → select:
+
+“tester” agent
+
+Then type:
+
+Begin test improvement cycle.
+
+
+The agent will:
+
+Run tests
+
+Generate tests
+
+Improve coverage
+
+Fix bugs
+
+Commit changes
+
+Push to GitHub
+
+Repeat until coverage is maximized
